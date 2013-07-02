@@ -93,6 +93,11 @@ class ButtonLed():
         if len(self.vals)>0:
             GPIO.output(self.LED_OUTPUT, self.vals[0])
 
+    def on(self):
+        GPIO.output(self.LED_OUTPUT, 1)
+
+    def off(self):
+        GPIO.output(self.LED_OUTPUT, 0)
 
 
  
@@ -143,7 +148,7 @@ def log_temps(pac, temps, d1, d2):
     print 'xx'
 
 
-def read_adc():
+def read_adc(bl=null):
     # read the analog pin (temperature sensor LM35)
     adc = [get_temp_strings(adc_to_millivolts(readadc(i, SPICLK, SPIMOSI, SPIMISO, SPICS))) for i in range(8)]
 
@@ -169,13 +174,19 @@ def read_adc():
         pac.update([eeml.Data(2, millivolts1/1000.0, unit=eeml.Unit('Volt', type='basicSI', symbol='V'))])
         pac.update([eeml.Data(9, bl.count, unit=eeml.Unit('Button Count', symbol='^')) ])
 
+        
+        if bl is not None:
+            bl.off()
 
         try:
             # send data to cosm
-            pac.put()
+            r = pac.put()
+            print "put: {}".format(r)
         except:
             print "ERROR: {}".format(sys.exc_info())
 
+        if bl is not None:
+            bl.on()
 
 
 if __name__=='__main__':
