@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import time
 import os
+from subprocess import call
 import sys
 import RPi.GPIO as GPIO
 import eeml
@@ -14,6 +15,10 @@ TIMER_INTERVAL = 0.10
 
 TEMP_F_MIN = -20
 TEMP_F_MAX = 130
+
+IMG_RATE = 10  # every N calls take a picture
+
+current_count = 0
 
 # read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
 def readadc(adcnum, clockpin, mosipin, misopin, cspin):
@@ -148,7 +153,7 @@ def log_temps(pac, temps, d1, d2):
     print 'xx'
 
 
-def read_adc(bl=null):
+def read_adc(bl=None):
     # read the analog pin (temperature sensor LM35)
     adc = [get_temp_strings(adc_to_millivolts(readadc(i, SPICLK, SPIMOSI, SPIMISO, SPICS))) for i in range(8)]
 
@@ -198,7 +203,14 @@ if __name__=='__main__':
         bl.set_led()
 
         if iteration % 100 == 0:
-            read_adc()
+            read_adc(bl)
+            if current_count >= IMG_RATE:
+                current_count = 0
+                try:
+                    call("raspistill -hf  -o /home/pi/work/temperature/imgs/{}.jpg".format(int(time.time())), shell=True)
+                except:
+                    print "camera call failed"
+            current_count += 1
         # hang out and do nothing for 10 seconds, avoid flooding cosm
 
         iteration += 1
