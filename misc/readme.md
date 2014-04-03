@@ -7,6 +7,7 @@ sudo easy_install pip
 ```
 
 
+place init script
 ```
 cp temperature /etc/init.d
 sudo update-rc.d temperature defaults
