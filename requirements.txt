@@ -1,0 +1,11 @@
+Pygments==1.6
+Python-EEML==0.1
+RPi.GPIO==0.5.3a
+argparse==1.2.1
+bpython==0.12
+distribute==0.6.34
+ipython==1.1.0
+numpy==1.6.2
+pygame==1.9.1release
+virtualenv==1.7.1.2
+wsgiref==0.1.2
