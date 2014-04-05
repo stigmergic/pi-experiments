@@ -6,7 +6,12 @@ import sys
 import RPi.GPIO as GPIO
 import eeml
  
+import picamera
+
 from datetime import datetime
+
+LOG_TEMPERATURE = False
+LOG_IMAGES = True
 
 GPIO.setmode(GPIO.BCM)
 DEBUG = 1
@@ -16,7 +21,7 @@ TIMER_INTERVAL = 0.10
 TEMP_F_MIN = -20
 TEMP_F_MAX = 130
 
-IMG_RATE = 10  # every N calls take a picture
+IMG_RATE = 25  # every N calls take a picture
 
 current_count = 0
 
@@ -203,11 +208,14 @@ if __name__=='__main__':
         bl.set_led()
 
         if iteration % 100 == 0:
-            read_adc(bl)
-            if current_count >= IMG_RATE:
+            if LOG_TEMPERATURE:
+		read_adc(bl)
+            if LOG_IMAGES and current_count >= IMG_RATE:
                 current_count = 0
                 try:
-                    call("raspistill -hf  -o /home/pi/work/temperature/imgs/{}.jpg".format(int(time.time())), shell=True)
+		    with picamera.PiCamera() as camera:
+			camera.resolution = (2592,1944)
+			camera.capture("/home/pi/work/temperature/imgs/{}.jpg".format(int(time.time())))
                 except:
                     print "camera call failed"
             current_count += 1
